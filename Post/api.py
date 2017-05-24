@@ -56,6 +56,32 @@ from Post.serializers import PostsListsSerializer, PostsSerializer
 #         return serializer.save(author=author)
 
 
-class CreatePostViewSet(CreateModelMixin, GenericViewSet):
+# class PostsViewSet(ListModelMixin, CreateModelMixin, GenericViewSet):
+#     def list(self, request, *args, **kwargs):
+#         queryset = Post.objects.all().filter(publicated_at__lte=datetime.now()).order_by(
+#             '-publicated_at').select_related("author")
+#         serializer = PostsListsSerializer(queryset, many=True)
+#         return Response(serializer.data)
+#
+#
+# class CreatePostAPI(CreateAPIView):
+#     """
+#     Endpoint de creación de un nuevo post (solo usuarios autenticados)
+#     """
+#     # permission_classes = (IsAuthenticated,)
+#
+#     queryset = Post.objects.all()
+#     serializer_class = PostsSerializer
+#
+#     def perform_create(self, serializer):
+#         return serializer.save(author=1)
+
+class PostsViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
+
     queryset = Post.objects.all()
     serializer_class = PostsSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(author=1)
+
+
