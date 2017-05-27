@@ -43,7 +43,7 @@ TYPE_POST = (
 
 
 class Post(models.Model):
-    author = models.IntegerField()
+    author = models.IntegerField(default=None)
     title = models.CharField(max_length=200)
     intro = models.TextField(max_length=1000)
     content = models.TextField()

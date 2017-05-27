@@ -1,16 +1,12 @@
 from django.utils.datetime_safe import datetime
+
 from django.utils.encoding import smart_text
 from rest_framework.authentication import get_authorization_header
-from rest_framework.generics import CreateAPIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from rest_framework.viewsets import GenericViewSet
 
 from Post.models import Post
-from Post.serializers import PostsListsSerializer, PostsSerializer
+from Post.serializers import PostsSerializer, PostsListsSerializer
 
 
 # class PostsViewSet(ListModelMixin, GenericViewSet):
@@ -134,8 +130,22 @@ from Post.serializers import PostsListsSerializer, PostsSerializer
 #         return serializer.save(author=author_id)
 
 class PostsViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    queryset = Post.objects.all()
-    serializer_class = PostsSerializer
+    # queryset = Post.objects.all()
+    # serializer_class = PostsSerializer
+
+    def get_queryset(self):
+        if self.request.method == 'GET':
+            queryset = Post.objects.all().filter(publicated_at__lte=datetime.now()).order_by('-publicated_at')
+        elif self.request.method == 'POST':
+            queryset = Post.objects.all()
+        return queryset
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            serializer_class = PostsListsSerializer
+        elif self.request.method == 'POST':
+            serializer_class = PostsSerializer
+        return serializer_class
 
     def perform_create(self, serializer):
         auth_header = smart_text(get_authorization_header(self.request))
