@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.utils.datetime_safe import datetime
 
 from django.utils.encoding import smart_text
@@ -151,3 +152,23 @@ class PostsViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
         auth_header = smart_text(get_authorization_header(self.request))
         author_id = int(auth_header)
         return serializer.save(author=author_id)
+
+
+class UserPostsViewSet(ListModelMixin, GenericViewSet):
+    """
+    Endpoint que muestra la lista de posts en el blog de un usuario
+    """
+
+    serializer_class = PostsListsSerializer
+    y = 1+1
+
+    def get_queryset(self):
+        if self.request.user.is_authenticated and (
+                self.request.user.username == self.kwargs["blogger"] or self.request.user.is_superuser):
+            queryset = Post.objects.all().filter(author__username=self.kwargs["blogger"]).order_by(
+                '-publicated_at')
+        else:
+            queryset = Post.objects.all().filter(
+                Q(author__username=self.kwargs["blogger"]) & Q(publicated_at__lte=datetime.now())).order_by(
+                '-publicated_at')
+        return queryset
