@@ -1,10 +1,10 @@
 from django.conf.urls import url
+from rest_framework.routers import DefaultRouter
 
 from Post.api import PostsViewSet, UserPostsViewSet
 
-from rest_framework.routers import SimpleRouter
-
-# router = SimpleRouter()
+# router = DefaultRouter()
+# router.register('api/1.0/blogs/(?P<blogger>[a-z0-9_-]+)', UserPostsViewSet, base_name='api_user_posts')
 #
 #
 # # router.register(u'api/1.0/posts', PostsViewSet, base_name='posts_')
@@ -22,5 +22,5 @@ from rest_framework.routers import SimpleRouter
 # # urlpatterns = router.urls
 urlpatterns = [
     url(r'^api/1.0/posts', PostsViewSet, name='posts_list'),
-    url(r'^api/1.0/userposts', UserPostsViewSet, name='user_posts_list'),
+    url(r'^api/1.0/userposts', UserPostsViewSet.as_view({'get': 'list'}), name='user_posts_list'),
 ]

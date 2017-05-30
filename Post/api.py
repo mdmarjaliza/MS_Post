@@ -160,15 +160,19 @@ class UserPostsViewSet(ListModelMixin, GenericViewSet):
     """
 
     serializer_class = PostsListsSerializer
-    y = 1+1
 
     def get_queryset(self):
+        blogger = self.request.META.get('HTTP_XBLOGGER')
+        blogger_id = int(self.request.META.get('HTTP_XBLOGGERID'))
         if self.request.user.is_authenticated and (
-                self.request.user.username == self.kwargs["blogger"] or self.request.user.is_superuser):
-            queryset = Post.objects.all().filter(author__username=self.kwargs["blogger"]).order_by(
+                self.request.user.username == blogger or self.request.user.is_superuser):
+            queryset = Post.objects.all().filter(author=blogger_id).order_by(
                 '-publicated_at')
         else:
             queryset = Post.objects.all().filter(
-                Q(author__username=self.kwargs["blogger"]) & Q(publicated_at__lte=datetime.now())).order_by(
+                Q(author=blogger_id) & Q(publicated_at__lte=datetime.now())).order_by(
                 '-publicated_at')
         return queryset
+
+
+
