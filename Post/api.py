@@ -1,139 +1,18 @@
 from django.db.models import Q
 from django.utils.datetime_safe import datetime
-
 from django.utils.encoding import smart_text
 from rest_framework.authentication import get_authorization_header
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, get_object_or_404
 from rest_framework.mixins import ListModelMixin, CreateModelMixin
 from rest_framework.viewsets import GenericViewSet
+from rest_framework.response import Response
 
 from Post.models import Post
+from Post.permissions import PostDetailPermission
 from Post.serializers import PostsSerializer, PostsListsSerializer
 
 
-# class PostsViewSet(ListModelMixin, GenericViewSet):
-#     queryset = Post.objects.all().filter(publicate_at__lte=datetime.now()).order_by(
-#         '-publicate_at').select_related("author")
-#
-#     serializer_class = PostsListsSerializer
-#
-#     renderer_classes = (TemplateHTMLRenderer,)
-#     template_name = "post/home.html"
-#     return Response({'posts': queryset})
-
-# class PostsViewSet(APIView):
-#     renderer_classes = (TemplateHTMLRenderer,)
-#     template_name = "post/home.html"
-#
-#     def get(self, request):
-#         queryset = Post.objects.all().filter(publicate_at__lte=datetime.now()).order_by(
-#             '-publicate_at').select_related("author")
-#         return Response({'posts': queryset})
-#
-#
-# class CreatePostAPI(CreateAPIView):
-#     """
-#     Endpoint de creación de un nuevo post (solo usuarios autenticados)
-#     """
-#     # permission_classes = (IsAuthenticated,)
-#
-#     queryset = Post.objects.all()
-#     serializer_class = PostsSerializer
-#
-#     def perform_create(self, serializer):
-#         author = 0
-#         return serializer.save(author=author)
-
-# class CreatePostViewSet(ModelViewSet):
-#     queryset = Post.objects.all()
-#
-#     def get_serializer_class(self):
-#         return PostsSerializer if self.action == "create" else PostsListsSerializer
-#
-#     # def retrieve(self, request, *args, **kwargs):
-#
-#     def perform_create(self, serializer):
-#         author = 0
-#         return serializer.save(author=author)
-
-
-# class PostsViewSet(ListModelMixin, CreateModelMixin, GenericViewSet):
-#     def list(self, request, *args, **kwargs):
-#         queryset = Post.objects.all().filter(publicated_at__lte=datetime.now()).order_by(
-#             '-publicated_at').select_related("author")
-#         serializer = PostsListsSerializer(queryset, many=True)
-#         return Response(serializer.data)
-#
-#
-# class CreatePostAPI(CreateAPIView):
-#     """
-#     Endpoint de creación de un nuevo post (solo usuarios autenticados)
-#     """
-#     # permission_classes = (IsAuthenticated,)
-#
-#     queryset = Post.objects.all()
-#     serializer_class = PostsSerializer
-#
-#     def perform_create(self, serializer):
-#         return serializer.save(author=1)
-
-# class PostsViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-#
-#     queryset = Post.objects.all()
-#     serializer_class = PostsSerializer
-#
-#     def perform_create(self, serializer):
-#         return serializer.save()
-
-
-# class PostsViewSet(ListModelMixin, GenericViewSet):
-#     """
-#     Endpoint que muestra la lista de posts
-#     """
-#
-#     queryset = Post.objects.all().filter(publicated_at__lte=datetime.now()).order_by('-publicated_at')
-#     serializer_class = PostsListsSerializer
-#
-#
-# class CreatePostAPI(CreateAPIView):
-#     """
-#     Endpoint de creación de un nuevo post (solo usuarios autenticados)
-#     """
-#     permission_classes = (IsAuthenticated,)
-#
-#     queryset = Post.objects.all()
-#     serializer_class = PostsSerializer
-#
-#     def perform_create(self, request, serializer):
-#         auth_header = smart_text(get_authorization_header(request))
-#         author_id = auth_header
-#         return serializer.save(author=author_id)
-
-
-# class PostsViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-#
-#     def get_queryset(self, request):
-#         if request.method == 'GET':
-#             queryset = Post.objects.all().filter(publicated_at__lte=datetime.now()).order_by('-publicated_at')
-#         elif request.method == 'POST':
-#             queryset = Post.objects.all()
-#         return queryset
-#
-#     def get_serializer_class(self, request):
-#         if request.method == 'GET':
-#             serializer_class = PostsListsSerializer
-#         elif request.method == 'POST':
-#             serializer_class = PostsSerializer
-#         return serializer_class
-#
-#     def perform_create(self, request, serializer):
-#         auth_header = smart_text(get_authorization_header(request))
-#         author_id = auth_header
-#         return serializer.save(author=author_id)
-
 class PostsViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    # queryset = Post.objects.all()
-    # serializer_class = PostsSerializer
-
     def get_queryset(self):
         if self.request.method == 'GET':
             queryset = Post.objects.all().filter(publicated_at__lte=datetime.now()).order_by('-publicated_at')
@@ -166,7 +45,7 @@ class UserPostsViewSet(ListModelMixin, GenericViewSet):
         blogger = self.request.META.get('HTTP_XBLOGGER')
         blogger_id = int(self.request.META.get('HTTP_XBLOGGERID'))
         if self.request.user.is_authenticated and (
-                self.request.user.username == blogger or self.request.user.is_superuser):
+                        self.request.user.username == blogger or self.request.user.is_superuser):
             queryset = Post.objects.all().filter(author=blogger_id).order_by(
                 '-publicated_at')
         else:
@@ -176,4 +55,25 @@ class UserPostsViewSet(ListModelMixin, GenericViewSet):
         return queryset
 
 
+class PostDetailAPI(RetrieveUpdateDestroyAPIView):
+    """
+    Endpoint que muestra el detalle de un post
+    """
 
+    queryset = Post.objects.all()
+    serializer_class = PostsListsSerializer
+    permission_classes = (PostDetailPermission,)
+
+    def retrieve(self, request):
+        blogger = self.request.META.get('HTTP_X_BLOGGER')
+        post_id = int(self.request.META.get('HTTP_X_POSTID'))
+        post = get_object_or_404(Post, pk=post_id, author_username=blogger)
+        self.check_object_permissions(request, post)
+        serializer = PostsListsSerializer(post)
+        return Response(serializer.data)
+
+    def perform_update(self, serializer):
+        if not self.request.user.is_superuser:
+            return serializer.save(author=self.request.user.pk, author_username=self.request.user.username)
+        else:
+            return serializer.save()
