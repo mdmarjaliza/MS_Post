@@ -151,7 +151,8 @@ class PostsViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
     def perform_create(self, serializer):
         auth_header = smart_text(get_authorization_header(self.request))
         author_id = int(auth_header)
-        return serializer.save(author=author_id)
+        author_username = self.request.META.get('HTTP_X_USERNAME')
+        return serializer.save(author=author_id, author_username=author_username)
 
 
 class UserPostsViewSet(ListModelMixin, GenericViewSet):

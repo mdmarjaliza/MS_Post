@@ -11,4 +11,4 @@ class PostsSerializer(serializers.ModelSerializer):
 
 class PostsListsSerializer(PostsSerializer):
     class Meta(PostsSerializer.Meta):
-        fields = ("title", "url_media", "intro", "publicated_at", "author")
+        fields = ("id", "title", "url_media", "intro", "publicated_at", "author", "author_username")
