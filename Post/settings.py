@@ -86,12 +86,12 @@ DATABASES = {
     }
 }
 
-REST_FRAMEWORK = {
-    'UNAUTHENTICATED_USER': None,
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'Post.auth.JSONAuthentication',
-    )
-}
+# REST_FRAMEWORK = {
+#     'UNAUTHENTICATED_USER': None,
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'Post.auth.JSONAuthentication',
+#     )
+# }
 
 
 # # Password validation

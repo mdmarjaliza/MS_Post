@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.utils.datetime_safe import datetime
 from django.utils.encoding import smart_text
 from rest_framework.authentication import get_authorization_header
+from rest_framework.decorators import authentication_classes
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, get_object_or_404
 from rest_framework.mixins import ListModelMixin, CreateModelMixin
 from rest_framework.viewsets import GenericViewSet
@@ -12,6 +13,7 @@ from rest_framework.response import Response
 from Post.models import Post
 from Post.permissions import PostDetailPermission
 from Post.serializers import PostsSerializer, PostsListsSerializer
+from Post.auth import JSONAuthentication
 
 
 class PostsViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
@@ -30,6 +32,8 @@ class PostsViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
         return serializer_class
 
     def perform_create(self, serializer):
+        
+        authentication_classes(JSONAuthentication,)
         # Ahora la cabecera de Authentication pasa el id del autor y su username, así que estas líneas siguientes no
         # no hacen falta:
         # auth_header = smart_text(get_authorization_header(self.request))
