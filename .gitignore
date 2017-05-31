@@ -12,3 +12,13 @@ db.sqlite3
 *.pyc
 
 node_modules/
+Categories/migrations/0001_initial.py
+Categories/migrations/__init__.py
+Post/migrations/0002_auto_20170524_0047.py
+Post/migrations/0003_auto_20170524_0047.py
+Post/migrations/0004_post_author.py
+Post/migrations/0005_auto_20170526_1948.py
+Post/migrations/0006_auto_20170526_2013.py
+Post/migrations/0007_post_author_username.py
+Post/migrations/0008_auto_20170531_0127.py
+Post/migrations/0009_auto_20170531_1339.py
