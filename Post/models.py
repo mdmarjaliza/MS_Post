@@ -20,7 +20,7 @@ class Post(models.Model):
     url_media = models.URLField(blank=True)
     publicated_at = models.DateTimeField(blank=True)
     state = models.CharField(max_length=3, choices=STATE, default=STATE_PUBLIC)
-    #category = models.ManyToManyField(Category)
+    category = models.ManyToManyField(Category)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
