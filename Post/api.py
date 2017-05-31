@@ -1,3 +1,5 @@
+import json
+
 from django.db.models import Q
 from django.utils.datetime_safe import datetime
 from django.utils.encoding import smart_text
@@ -28,10 +30,18 @@ class PostsViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
         return serializer_class
 
     def perform_create(self, serializer):
+        # Ahora la cabecera de Authentication pasa el id del autor y su username, así que estas líneas siguientes no
+        # no hacen falta:
+        # auth_header = smart_text(get_authorization_header(self.request))
+        # author_id = int(auth_header)
+        # author_username = self.request.META.get('HTTP_X_USERNAME')
+
+        #en estas dos líneas siguiente cogemos las cabeceras y las convertimos a un json
         auth_header = smart_text(get_authorization_header(self.request))
-        author_id = int(auth_header)
-        author_username = self.request.META.get('HTTP_X_USERNAME')
-        return serializer.save(author=author_id, author_username=author_username)
+        user_data = json.loads(auth_header)
+
+        return serializer.save(author=user_data.get('id'), author_username=user_data.get('username'))
+
 
 
 class UserPostsViewSet(ListModelMixin, GenericViewSet):
