@@ -9,7 +9,7 @@ db.sqlite3
 .idea/
 
 #pycharm cache
-__pycache__/
+Post/__pycache__/
 
 #python bytecode files  (archivos precompilados de python)
 *.pyc
