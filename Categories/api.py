@@ -6,5 +6,5 @@ from Categories.serializers import CategorySerializer
 
 
 class CategoryViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
-    queryset = Category.object.all()
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer

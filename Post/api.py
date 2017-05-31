@@ -14,12 +14,14 @@ from Post.models import Post
 from Post.permissions import PostDetailPermission
 from Post.serializers import PostsSerializer, PostsListsSerializer
 from Post.auth import JSONAuthentication
+from django.db.models import Q
 
 
 class PostsViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
     def get_queryset(self):
         if self.request.method == 'GET':
-            queryset = Post.objects.all().filter(publicated_at__lte=datetime.now()).order_by('-publicated_at')
+            queryset = Post.objects.all().filter(Q(publicated_at__lte=datetime.now()) & Q(state='PUB')).order_by(
+                '-publicated_at')
         elif self.request.method == 'POST':
             queryset = Post.objects.all()
         return queryset
@@ -32,20 +34,19 @@ class PostsViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
         return serializer_class
 
     def perform_create(self, serializer):
-        
-        authentication_classes(JSONAuthentication,)
+
+        authentication_classes(JSONAuthentication, )
         # Ahora la cabecera de Authentication pasa el id del autor y su username, así que estas líneas siguientes no
         # no hacen falta:
         # auth_header = smart_text(get_authorization_header(self.request))
         # author_id = int(auth_header)
         # author_username = self.request.META.get('HTTP_X_USERNAME')
 
-        #en estas dos líneas siguiente cogemos las cabeceras y las convertimos a un json
+        # en estas dos líneas siguiente cogemos las cabeceras y las convertimos a un json
         auth_header = smart_text(get_authorization_header(self.request))
         user_data = json.loads(auth_header)
 
         return serializer.save(author=user_data.get('id'), author_username=user_data.get('username'))
-
 
 
 class UserPostsViewSet(ListModelMixin, GenericViewSet):
@@ -75,7 +76,7 @@ class PostDetailAPI(RetrieveUpdateDestroyAPIView):
     """
 
     queryset = Post.objects.all()
-    serializer_class = PostsListsSerializer
+    serializer_class = PostsSerializer
     permission_classes = (PostDetailPermission,)
 
     def retrieve(self, request):
@@ -83,7 +84,7 @@ class PostDetailAPI(RetrieveUpdateDestroyAPIView):
         post_id = int(self.request.META.get('HTTP_X_POSTID'))
         post = get_object_or_404(Post, pk=post_id, author_username=blogger)
         self.check_object_permissions(request, post)
-        serializer = PostsListsSerializer(post)
+        serializer = PostsSerializer(post)
         return Response(serializer.data)
 
     def perform_update(self, serializer):
