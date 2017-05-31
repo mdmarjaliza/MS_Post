@@ -87,14 +87,10 @@ DATABASES = {
 }
 
 REST_FRAMEWORK = {
-    # 'UNAUTHENTICATED_USER': None,
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #     'Post.auth.JSONAuthentication',
-    # ),
-    # 'DEFAULT_RENDERER_CLASSES': (
-    #     'rest_framework.renderers.TemplateHTMLRenderer',
-    #     'rest_framework.renderers.JSONRenderer',
-    # )
+    'UNAUTHENTICATED_USER': None,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'Post.auth.JSONAuthentication',
+    )
 }
 
 
