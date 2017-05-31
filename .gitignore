@@ -6,7 +6,7 @@ win_env/
 db.sqlite3
 
 #pycharm (opciones del proyecto de pycharm)
-.idea
+.idea/
 
 #python bytecode files  (archivos precompilados de python)
 *.pyc
