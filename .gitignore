@@ -8,6 +8,9 @@ db.sqlite3
 #pycharm (opciones del proyecto de pycharm)
 .idea/
 
+#pycharm cache
+__pycache__/
+
 #python bytecode files  (archivos precompilados de python)
 *.pyc
 
