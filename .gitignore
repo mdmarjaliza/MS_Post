@@ -15,4 +15,3 @@ node_modules/
 
 #migrations from Post service
 Post/migrations/
-Categories/migrations/
