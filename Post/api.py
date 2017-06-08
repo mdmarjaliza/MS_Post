@@ -65,7 +65,7 @@ class UserPostsViewSet(ListModelMixin, GenericViewSet):
                 '-publicated_at')
         else:
             queryset = Post.objects.all().filter(
-                Q(author=blogger_id) & Q(publicated_at__lte=datetime.now())).order_by(
+                Q(author=blogger_id) & Q(state='PUB') & Q(publicated_at__lte=datetime.now())).order_by(
                 '-publicated_at')
         return queryset
 
@@ -92,3 +92,18 @@ class PostDetailAPI(RetrieveUpdateDestroyAPIView):
             return serializer.save(author=self.request.user.pk, author_username=self.request.user.username)
         else:
             return serializer.save()
+
+
+class CategoryPostsViewSet(ListModelMixin, GenericViewSet):
+    """
+    Endpoint que muestra la lista de posts por categoria
+    """
+
+    serializer_class = PostsListsSerializer
+
+    def get_queryset(self):
+        category = int(self.request.META.get('HTTP_X_CATEGORY'))
+        queryset = Post.objects.all().filter(
+            Q(category__id=category) & Q(state='PUB') & Q(publicated_at__lte=datetime.now())).order_by(
+            '-publicated_at')
+        return queryset
